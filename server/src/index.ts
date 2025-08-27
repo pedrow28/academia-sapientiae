@@ -36,6 +36,28 @@ app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
 // - express.json: faz o parsing automático de JSON no corpo das requisições
 app.use(express.json());
 
+function toStartOfUtcDay(date: Date) {
+  // zera hora/min/seg/ms em UTC
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function daysBetweenUtc(a: Date, b: Date) {
+  // diferença inteira em dias entre inícios de dia UTC
+  const A = toStartOfUtcDay(a).getTime();
+  const B = toStartOfUtcDay(b).getTime();
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  return Math.round((B - A) / MS_PER_DAY);
+}
+
+function nextStreak(prevLastActivityAt: Date | null, now: Date, prevStreak: number) {
+  if (!prevLastActivityAt) return 1;         // primeira atividade
+  const diff = daysBetweenUtc(prevLastActivityAt, now);
+  if (diff <= 0) return prevStreak;          // mesma data (hoje) ou data passada → não incrementa
+  if (diff === 1) return prevStreak + 1;     // ontem → incrementa
+  return 1;                                  // gap maior → reinicia
+}
+
+
 // -------- utils ----------
 
 // Define o “shape” (formato) do payload do JWT
@@ -127,10 +149,10 @@ app.post('/auth/login', async (req, res) => {
 // Esquema zod para o “progresso” do usuário (ex.: dados de um personagem de jogo)
 // character é flexível (z.any), mas pode evoluir para schema mais estrito
 const progressSchema = z.object({
-  character: z.any(), // pode evoluir para um schema mais rígido
-  streak: z.number().int().nonnegative().optional(),
-  lastActivityAt: z.string().datetime().optional(),
+  character: z.any(), // depois podemos apertar esse tipo
+  activityAt: z.string().datetime().optional(), // momento da atividade (ISO). Default=agora(UTC)
 });
+
 
 // Busca o progresso do usuário autenticado
 app.get('/api/progress', auth, async (req: any, res) => {
@@ -140,32 +162,49 @@ app.get('/api/progress', auth, async (req: any, res) => {
   return res.json({ progress: prog || null });
 });
 
-// Cria/atualiza (“upsert”) o progresso do usuário autenticado
 app.put('/api/progress', auth, async (req: any, res) => {
   const parse = progressSchema.safeParse(req.body);
   if (!parse.success) return res.status(400).json({ error: parse.error.format() });
+  const { character, activityAt } = parse.data;
 
-  const d = parse.data;
+  // instante considerado da atividade (default: agora em UTC)
+  const now = activityAt ? new Date(activityAt) : new Date();
+  if (Number.isNaN(now.getTime())) {
+    return res.status(400).json({ error: 'activityAt inválido' });
+  }
+
+  // pega progresso atual
+  const current = await prisma.characterProgress.findUnique({
+    where: { userId: req.userId },
+  });
+
+  // calcula novo streak
+  const computedStreak = nextStreak(current?.lastActivityAt ?? null, now, current?.streak ?? 0);
+
+  // regra de “uma atualização por dia”:
+  // se a última atividade já foi hoje (em UTC), não incrementa; apenas atualiza character e carimba lastActivityAt (mantendo hoje)
+  const last = current?.lastActivityAt ?? null;
+  const alreadyToday = last ? (daysBetweenUtc(last, now) <= 0) : false;
 
   const up = await prisma.characterProgress.upsert({
-    where: { userId: req.userId }, // linha única por usuário
+    where: { userId: req.userId },
     create: {
       userId: req.userId,
-      character: d.character, // provavelmente um JSON
-      streak: d.streak ?? 0,
-      // Converte ISO string em Date; se não vier, salva null
-      lastActivityAt: d.lastActivityAt ? new Date(d.lastActivityAt) : null,
+      character,
+      streak: computedStreak || 1,
+      lastActivityAt: now,
     },
     update: {
-      character: d.character,
-      // undefined significa “não alterar” esse campo; já null sobrescreveria para null
-      streak: d.streak ?? undefined,
-      lastActivityAt: d.lastActivityAt ? new Date(d.lastActivityAt) : undefined,
+      character,
+      // se já teve atividade hoje, mantemos o streak atual; senão aplicamos o novo cálculo
+      streak: alreadyToday ? current!.streak : computedStreak,
+      lastActivityAt: now,
     },
   });
 
   return res.json({ progress: up });
 });
+
 
 // Sobe o servidor HTTP na porta definida e loga a URL
 app.listen(PORT, () => {
