@@ -1,0 +1,207 @@
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400&family=Cinzel:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Academia Mystica Sapientiae - Design System 
+Medieval manuscript meets 16-bit pixel art aesthetic
+*/
+
+
+@layer base {
+  :root {
+    /* Sacred Color Palette - Medieval Illuminated Manuscripts */
+    --manuscript-parchment: 38 50% 96%;
+    --manuscript-ink: 220 35% 15%;
+    --illuminated-gold: 45 95% 65%;
+    --illuminated-blue: 220 70% 25%;
+    --cardinal-red: 350 85% 55%;
+    --emerald-sacred: 155 70% 40%;
+    --episcopal-purple: 280 60% 45%;
+    --manuscript-shadow: 30 25% 85%;
+    
+    /* Core Theme Colors */
+    --background: var(--manuscript-parchment);
+    --foreground: var(--manuscript-ink);
+    --primary: var(--illuminated-blue);
+    --primary-foreground: var(--manuscript-parchment);
+    --secondary: var(--illuminated-gold);
+    --secondary-foreground: var(--manuscript-ink);
+    --accent: var(--cardinal-red);
+    --accent-foreground: var(--manuscript-parchment);
+    --muted: var(--manuscript-shadow);
+    --muted-foreground: var(--manuscript-ink);
+    
+    /* Interface Elements */
+    --card: var(--manuscript-parchment);
+    --card-foreground: var(--manuscript-ink);
+    --border: 220 30% 70%;
+    --input: var(--manuscript-shadow);
+    --ring: var(--illuminated-gold);
+    --popover: var(--manuscript-parchment);
+    --popover-foreground: var(--manuscript-ink);
+    --destructive: var(--cardinal-red);
+    --destructive-foreground: var(--manuscript-parchment);
+    
+    /* Sacred Gradients */
+    --gradient-divine: linear-gradient(135deg, hsl(var(--illuminated-gold)), hsl(var(--illuminated-blue)));
+    --gradient-manuscript: linear-gradient(180deg, hsl(var(--manuscript-parchment)), hsl(var(--manuscript-shadow)));
+    --gradient-virtue: linear-gradient(90deg, hsl(var(--emerald-sacred)), hsl(var(--episcopal-purple)));
+    
+    /* Medieval Shadows */
+    --shadow-manuscript: 0 4px 12px hsl(var(--manuscript-ink) / 0.15);
+    --shadow-illumination: 0 0 20px hsl(var(--illuminated-gold) / 0.4);
+    --shadow-sacred: 0 8px 32px hsl(var(--illuminated-blue) / 0.2);
+    
+    /* Typography Scale */
+    --text-title: 2.5rem;
+    --text-subtitle: 1.5rem;
+    --text-body: 1rem;
+    --text-caption: 0.875rem;
+    
+    /* Spacing & Layout */
+    --radius: 0.5rem;
+    --radius-ornate: 1rem;
+
+    --sidebar-background: 0 0% 98%;
+
+    --sidebar-foreground: 240 5.3% 26.1%;
+
+    --sidebar-primary: 240 5.9% 10%;
+
+    --sidebar-primary-foreground: 0 0% 98%;
+
+    --sidebar-accent: 240 4.8% 95.9%;
+
+    --sidebar-accent-foreground: 240 5.9% 10%;
+
+    --sidebar-border: 220 13% 91%;
+
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+/* Pixel Art & Medieval Components */
+@layer components {
+  .medieval-border {
+    border: 2px solid hsl(var(--illuminated-gold));
+    border-radius: var(--radius-ornate);
+    background: var(--gradient-manuscript);
+    box-shadow: var(--shadow-manuscript), inset 0 1px 0 hsl(var(--illuminated-gold) / 0.3);
+  }
+
+  .illuminated-text {
+    background: var(--gradient-divine);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+  }
+
+  .virtue-bar {
+    background: hsl(var(--muted));
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid hsl(var(--border));
+  }
+
+  .virtue-progress {
+    background: var(--gradient-virtue);
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.5s ease-in-out;
+    box-shadow: var(--shadow-illumination);
+  }
+
+  .pixel-button {
+    background: var(--gradient-divine);
+    border: 2px solid hsl(var(--illuminated-gold));
+    color: hsl(var(--manuscript-parchment));
+    font-family: 'Crimson Text', serif;
+    font-weight: 600;
+    text-shadow: 1px 1px 2px hsl(var(--manuscript-ink) / 0.5);
+    box-shadow: var(--shadow-manuscript);
+    transition: all 0.2s ease;
+  }
+
+  .pixel-button:hover {
+    box-shadow: var(--shadow-sacred);
+    transform: translateY(-1px);
+  }
+
+  .manuscript-card {
+    background: var(--gradient-manuscript);
+    border: 2px solid hsl(var(--border));
+    border-radius: var(--radius-ornate);
+    box-shadow: var(--shadow-manuscript);
+    position: relative;
+  }
+
+  .manuscript-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gradient-divine);
+    border-radius: var(--radius);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Crimson Text', serif;
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(var(--illuminated-gold) / 0.05) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, hsl(var(--illuminated-blue) / 0.05) 0%, transparent 50%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cinzel', serif;
+  }
+}
